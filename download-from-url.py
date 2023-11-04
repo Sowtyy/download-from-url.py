@@ -1,43 +1,79 @@
 import requests
 
 
-def main():
-  specialChars = "#%&}{\\><*?/ $!'\":@+`|="
-  filenameLengthLimit = 250
+def inputVar(printText = ""):
+  var = input(printText)
+  print(var)
 
-  d = input("Save directory: ")
-  print(d)
-  url = ""
-  filename = ""
+  return var
 
-  while True:
-    filename = ""
-    url = input("URL: ")
-    print(url)
+def replaceStringChars(string, chars, replaceTo = "_"):
+  for char in chars:
+    string = string.replace(char, replaceTo)
+  
+  print(string)
 
-    req = requests.get(url)
-    print(req.status_code)
+  return string
 
-    filename = url
-    for specialChar in specialChars:
-      filename = filename.replace(specialChar, "_")
-      print(filename)
+def subtractString(string, i1):
+  string = string[i1:]
+  print(string)
 
-    if len(filename) > filenameLengthLimit:
-      filename = filename[len(filename) - filenameLengthLimit:]
-      print(filename)
+  return string
 
-    with open(d + "/" + filename, "wb") as file:
-      file.write(req.content)
+def getUrl(url):
+  req = requests.get(url)
+  print(req.status_code)
 
-    print("Done\n")
+  return req
+
+def fWrite(path, content):
+  with open(path, "wb") as file:
+    file.write(content)
 
   return
 
 
-try:
-  main()
-except Exception as e:
-  print("-- error in main:", repr(e))
+def main():
+  specialChars = "#%&}{\\><*?/ $!'\":@+`|="
+  filenameLengthLimit = 250
 
-input()
+  d = inputVar("Save directory: ")
+  url = ""
+
+  while True:
+    filename = ""
+    inp = inputVar("URL or /d: ")
+
+    if inp == "/d":
+      d = inputVar("Save directory: ")
+      continue
+    elif inp == "/q":
+      break
+
+
+    url = inp
+    filename = url
+
+    req = getUrl(url)
+
+    filename = replaceStringChars(filename, specialChars)
+
+    if len(filename) > filenameLengthLimit:
+      filename = subtractString(len(filename) - filenameLengthLimit)
+
+
+    fWrite(d + "/" + filename, req.content)
+
+    
+    print("Done.\n")
+
+  return
+
+
+if __name__ == "__main__":
+  try:
+    main()
+  except Exception as e:
+    print("-- error in main:", repr(e))
+    input()
