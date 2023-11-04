@@ -1,9 +1,14 @@
 import requests
+import os
+
+
+VERSION = "1.2.0"
+VERSION_DATE = "15.08.2023"
 
 
 def inputVar(printText = ""):
   var = input(printText)
-  print(var)
+  print(f"Inputted: '{var}'.")
 
   return var
 
@@ -11,25 +16,33 @@ def replaceStringChars(string, chars, replaceTo = "_"):
   for char in chars:
     string = string.replace(char, replaceTo)
   
-  print(string)
+  print(f"Replaced special characters in string. New string: '{string}'.")
 
   return string
 
 def subtractString(string, i1):
   string = string[i1:]
-  print(string)
+  
+  print(f"String subtracted. New string: '{string}'.")
 
   return string
 
 def getUrl(url):
+  print(f"Requesting '{url}'...")
+  
   req = requests.get(url)
-  print(req.status_code)
+  
+  print(f"Request status code: '{req.status_code}'.")
 
   return req
 
 def fWrite(path, content):
+  print(f"Writing file to '{path}'...")
+  
   with open(path, "wb") as file:
     file.write(content)
+
+  print(f"Wrote file to '{path}'.")
 
   return
 
@@ -42,7 +55,6 @@ def main():
   url = ""
 
   while True:
-    filename = ""
     inp = inputVar("URL or /d: ")
 
     if inp == "/d":
@@ -53,17 +65,15 @@ def main():
 
 
     url = inp
-    filename = url
+    filename = replaceStringChars(url, specialChars)
 
     req = getUrl(url)
-
-    filename = replaceStringChars(filename, specialChars)
 
     if len(filename) > filenameLengthLimit:
       filename = subtractString(len(filename) - filenameLengthLimit)
 
 
-    fWrite(d + "/" + filename, req.content)
+    fWrite(os.path.join(d, filename), req.content)
 
     
     print("Done.\n")
@@ -72,8 +82,4 @@ def main():
 
 
 if __name__ == "__main__":
-  try:
-    main()
-  except Exception as e:
-    print("-- error in main:", repr(e))
-    input()
+  main()
